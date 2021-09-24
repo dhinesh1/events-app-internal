@@ -65,7 +65,8 @@ describe('GET /', function() {
         if (err) {
           return done(err);
         }
-        eventCountBefore = JSON.parse(res.text).events.length
+        eventCountBefore = JSON.parse(res.text).events.length;
+        
     
 
         request(app)
@@ -80,6 +81,7 @@ describe('GET /', function() {
             chai.expect(JSON.parse(res.text).events.length).to.equal(eventCountBefore+1);
             return done();
         });
+        return done();
       });
 
 
