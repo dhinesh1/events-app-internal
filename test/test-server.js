@@ -66,9 +66,12 @@ describe('GET /', function() {
           return done(err);
         }
         eventCountBefore = JSON.parse(res.text).events.length;
-        
+        return done();
     
 
+        
+        
+      });
         request(app)
         .post('/event')
         .send( { title: 'a test event', description: 'a really cool test' })
@@ -81,9 +84,6 @@ describe('GET /', function() {
             chai.expect(JSON.parse(res.text).events.length).to.equal(eventCountBefore+1);
             return done();
         });
-        return done();
-      });
-
 
       });
   });
