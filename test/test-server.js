@@ -53,39 +53,39 @@ describe('GET /', function() {
       });
   });
 
-  describe('POST /event', function() {
-    var eventCountBefore = 0;
-    it('returns events', function(done) {
-      request(app)
-      .get('/events')
-      .set('Accept', 'application/json')
-      .expect(200)
-      .end((err, res) => {
-        if (err) {
-          return done(err);
-        }
-        eventCountBefore = JSON.parse(res.text).events.length;
-        chai.expect(JSON.parse(res.text)).to.have.property('events');
-        return done();
-      });
+//   describe('POST /event', function() {
+//     var eventCountBefore = 0;
+//     it('returns events', function(done) {
+//       request(app)
+//       .get('/events')
+//       .set('Accept', 'application/json')
+//       .expect(200)
+//       .end((err, res) => {
+//         if (err) {
+//           return done(err);
+//         }
+//         eventCountBefore = JSON.parse(res.text).events.length;
+//         chai.expect(JSON.parse(res.text)).to.have.property('events');
+//         return done();
+//       });
 
-      });
-    it('adds an event', function(done) {
+//       });
+//     it('adds an event', function(done) {
     
     
     
-        request(app)
-        .post('/event')
-        .send( { title: 'a test event', description: 'a really cool test' })
-        .set('Accept', 'application/json')
-        .expect(200)
-        .end((err, res) => {
-            if (err) {
-            return done(err);
-            }
-            chai.expect(JSON.parse(res.text).events.length).to.equal(eventCountBefore+1);
-            return done();
-        });
+//         request(app)
+//         .post('/event')
+//         .send( { title: 'a test event', description: 'a really cool test' })
+//         .set('Accept', 'application/json')
+//         .expect(200)
+//         .end((err, res) => {
+//             if (err) {
+//             return done(err);
+//             }
+//             chai.expect(JSON.parse(res.text).events.length).to.equal(eventCountBefore+1);
+//             return done();
+//         });
 
-      });
-  });
+//       });
+//   });
