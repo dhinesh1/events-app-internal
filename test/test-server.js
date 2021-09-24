@@ -55,18 +55,33 @@ describe('GET /', function() {
 
   describe('POST /event', function() {
     it('adds an event', function(done) {
-      request(app)
-      .post('/event')
-      .send( { title: 'a test event', description: 'a really cool test' })
+    
+    var eventCountBefore = 0;
+    request(app)
+      .get('/events')
       .set('Accept', 'application/json')
       .expect(200)
       .end((err, res) => {
         if (err) {
           return done(err);
         }
-        chai.expect(JSON.parse(res.text).events.length).to.equal(3);
-        return done();
+        eventCountBefore = JSON.parse(res.text).events.length
+    
+
+        request(app)
+        .post('/event')
+        .send( { title: 'a test event', description: 'a really cool test' })
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, res) => {
+            if (err) {
+            return done(err);
+            }
+            chai.expect(JSON.parse(res.text).events.length).to.equal(eventCountBefore+1);
+            return done();
+        });
       });
+
 
       });
   });
