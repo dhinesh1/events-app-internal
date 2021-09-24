@@ -11,6 +11,17 @@ const bodyParser = require('body-parser');
 // create the server
 const app = express();
 
+// bring in firestore
+const Firestore = require("@google-cloud/firestore");
+
+// initialize Firestore and set project id from env var
+const firestore = new Firestore(
+    {
+        projectId: process.env.GOOGLE_CLOUD_PROJECT
+    }
+);
+
+
 // the backend server will parse json, not a form request
 app.use(bodyParser.json());
 
@@ -43,25 +54,80 @@ app.get('/version', (req, res) => {
 
 // mock events endpoint. this would be replaced by a call to a datastore
 // if you went on to develop this as a real application.
+// app.get('/events', (req, res) => {
+//     res.json(mockEvents);
+// });
 app.get('/events', (req, res) => {
-    res.json(mockEvents);
+    getEvents(req, res);
 });
+
 
 // Adds an event - in a real solution, this would insert into a cloud datastore.
 // Currently this simply adds an event to the mock array in memory
 // this will produce unexpected behavior in a stateless kubernetes cluster. 
+// app.post('/event', (req, res) => {
+//     // create a new object from the json data and add an id
+//     const ev = { 
+//         title: req.body.title, 
+//         description: req.body.description,
+//         id : mockEvents.events.length + 1
+//      }
+//     // add to the mock array
+//     mockEvents.events.push(ev);
+//     // return the complete array
+//     res.json(mockEvents);
+// });
+
 app.post('/event', (req, res) => {
     // create a new object from the json data and add an id
     const ev = { 
         title: req.body.title, 
         description: req.body.description,
-        id : mockEvents.events.length + 1
+        id : mockEvents.events.length + 1,
+        likes : 0
      }
-    // add to the mock array
-    mockEvents.events.push(ev);
-    // return the complete array
-    res.json(mockEvents);
+// this will create the Events collection if it does not exist
+    firestore.collection("Events").add(ev).then(ret => {
+        getEvents(req, res);
+    });
+
 });
+
+app.post('/addLike', (req,res) =>{
+    // const ev = { 
+    //     like: parseInt(req.body.likes)+1, 
+    //     id : req.body.id
+    //  }
+    console.log(parseInt(req.body.likes));
+     var likes = isNaN(parseInt(req.body.likes)) ?   0 :parseInt(req.body.likes);
+    firestore.collection("Events").doc(req.body.id).update({likes: likes+1});
+    res.json([]);
+});
+function getEvents(req, res) {
+    firestore.collection("Events").get()
+        .then((snapshot) => {
+            if (!snapshot.empty) {
+                const ret = { events: []};
+                snapshot.docs.forEach(element => {
+                    //get data
+                    const el = element.data();
+                    //get internal firestore id and assign to object
+                    el.id = element.id;
+                    //add object to array
+                    ret.events.push(el);
+                }, this);
+                console.log(ret);
+                res.json(ret);
+            } else {
+                 res.json(mockEvents);
+            }
+        })
+        .catch((err) => {
+            console.error('Error getting events', err);
+            res.json(mockEvents);
+        });
+};
+
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
